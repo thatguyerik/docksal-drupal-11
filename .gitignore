@@ -1,0 +1,84 @@
+# Ignore Composer vendor directory
+/vendor/
+
+# Ignore Drupal web root (optional – if you only want to track symlinked sources)
+# !/web
+# /web/*
+# !/web/modules
+# /web/modules/*
+!/web/modules/custom
+/web/modules/custom/*
+!/web/modules/custom/.gitkeep
+# !/web/themes
+# /web/themes/*
+!/web/themes/custom
+/web/themes/custom/*
+!/web/themes/custom/.gitkeep
+!/web/libraries
+/web/libraries/*
+!/web/libraries/.gitkeep
+/config/*
+!/config
+
+/web/sites/all/*
+!/web/sites/all
+/web/sites/default/services.yml
+/web/sites/default/development.services.yml
+/web/sites/default/settings.php
+/web/sites/default/settings.local.php
+web/sites/default/files/
+
+# Ignore the recipes folder. It is symlinked from the
+# project/recipes folder.
+/recipes
+
+# Don't incude compiled assets
+/project/theme/*/dist
+
+# Don't include npm install artifacts in repo
+node_modules/
+
+# Ignore environment/local development files
+.env
+*.sql
+*.sql.gz
+!/db/init.sql.gz
+
+# Ignore IDE/editor files
+*.idea/
+*.vscode/
+*.DS_Store
+*.swp
+
+# Ignore local-only Docksal configuration
+/.docksal/docksal-local.env
+/.docksal/docksal-local.yml
+
+# Ignore logs for n8n service
+/.docksal/services/n8n/data/*.log
+/.docksal/services/n8n/data/*.journal
+
+# Ignore PHPUnit results cache
+/.phpunit.result.cache
+
+# Storybook files
+*storybook.log
+storybook-static
+
+# Ignore assistant-specific rule files/dirs that are created as symlinks to .ai/rules
+# Do not ignore the canonical .ai/rules itself (exceptions at bottom)
+
+/.github/copilot-instructions.md
+/.tabnine/guidelines
+/.cursor/rules
+/.windsurf/rules
+/.codeium/rules
+/.junie/guidelines.md
+/.claude/rules
+/cody.json
+/.continue/config.json
+
+# Exceptions: keep the canonical source tracked
+!.ai/
+!.ai/rules/
+!.ai/rules/**

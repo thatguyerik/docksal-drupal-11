@@ -1,0 +1,7 @@
+services:
+
+  cli:
+    image: ${COMPOSE_PROJECT_NAME_SAFE}_cli
+    build: services/cli
+    environment:
+      - AI_ASSISTANT=${AI_ASSISTANT}
