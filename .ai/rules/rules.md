@@ -59,47 +59,6 @@ The project uses symlinks to map the `project/` directory structure to the runti
 - **project-scaffold**: Sets up symlinks and manages settings files
 - **post-autoload-dump**: Automatically runs project-scaffold after composer operations
 
-### Theme Frontend (Vite/Sass/Bootstrap)
-
-The project’s frontend assets live inside the custom theme directory at `${THEME_PATH}` (defaults to `project/theme/grantparish`). The theme uses Vite and Sass with Bootstrap 5.
-
-- Tooling:
-  - Vite 7 for build and dev server
-  - Sass for stylesheet compilation
-  - Bootstrap 5 for UI components
-
-#### Build Process
-
-Primary build command (recommended):
-```bash
-fin theme/build
-```
-This Docksal command runs inside the CLI container and performs:
-1. `npm install` in `${THEME_PATH}`
-2. `npm run build` (Vite production build)
-
-Notes:
-- Prefer `fin theme/build` over running npm locally to ensure a consistent containerized environment.
-- The Vite output is written under the theme directory (e.g., `${THEME_PATH}/dist`).
-
-#### Local Development
-
-- Start the Vite dev server:
-```bash
-fin exec "cd ${THEME_PATH} && npm run dev"
-```
-- One‑off production build:
-```bash
-fin theme/build
-```
-
-#### Integration with Drupal
-
-- The theme’s libraries should reference the built assets from the Vite output directory.
-- Attach the appropriate theme library in Twig templates using `attach_library()`.
-
-There is no separate web‑components design system or Storybook in this repository at this time. If you re‑introduce one, add corresponding Docksal commands and document them here.
-
 ## Testing Information
 
 ### Testing Framework
@@ -244,10 +203,15 @@ The project uses Drupal coding standards enforced by PHPCS:
 - **Error Logging**: Configure in `settings.local.php`
 - **Development Mode**: Enable in local settings for verbose error reporting
 
+## Documentation
+
+### **Document as you go**:
+- If you work on a custom module or theme, keep the README.me and CHANGELOG.md in that module or theme's directory up to date.
+- If you work on anything that modifies the behavior of the site as a whole, document it in the README.md at the project root and ensure that the CHANGELOG.md file is also updated to reflect changes.
+- To document anything specific, create a new directory called `docs` and add documentation there. This is good for documenting specific features or business logic that affect the site as a whole and helps developers to get up-to-speed on project development quickly.
+
 ## Additional Notes
 
-- The project uses Drupal 11.2 with admin_toolbar module
 - Symlinks are automatically managed by composer scripts
 - Database connection uses root/root credentials in the Docksal environment
-- The site can be accessed at `http://grantparish.docksal.site` after initialization
 - Configuration can be imported/exported using Drush commands within the Docksal environment
