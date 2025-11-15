@@ -37,6 +37,11 @@
 $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/default/development.services.yml';
 
 /**
+ * Enable Twig Debug Mode.
+ */
+$settings['twig_debug'] = TRUE;
+
+/**
  * Show all error messages, with backtrace information.
  *
  * In case the error level could not be fetched from the database, as for
@@ -62,7 +67,7 @@ $config['system.performance']['js']['preprocess'] = FALSE;
  *
  * Only use this setting once the site has been installed.
  */
-# $settings['cache']['bins']['render'] = 'cache.backend.null';
+$settings['cache']['bins']['render'] = 'cache.backend.null';
 
 /**
  * Disable caching for migrations.
