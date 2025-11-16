@@ -31,13 +31,10 @@
     },
     "scripts": {
         "project-scaffold": [
-            "chmod u+w web/sites/default",
-            "rm -f web/sites/default/settings.php",
-            "rm -f web/sites/default/services.yml",
-            "rm -f web/sites/default/settings.local.php",
-            "rm -f web/sites/default/development.services.yml",
+            "chmod u+rwx,go+rx-w web/sites/default",
+            "rm -f web/sites/default/settings.php web/sites/default/services.yml web/sites/default/settings.local.php rm web/sites/default/development.services.yml",
             "Kporras07\\ComposerSymlinks\\ScriptHandler::createSymlinks",
-            "chmod u-w web/sites/default"
+            "chmod a=r web/sites/default/settings.php web/sites/default/services.yml web/sites/default/settings.local.php web/sites/default/development.services.yml"
         ],
         "post-autoload-dump": [
             "@project-scaffold"

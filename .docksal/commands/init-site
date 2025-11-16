@@ -86,7 +86,7 @@ site_install ()
     echo-green "No Drupal installation detected. Running site install..."
     drush site-install minimal --existing-config --account-name=admin --account-pass=admin -y
     echo-green "Drupal installation complete..."
-    return 0
+    return
   fi
 
   echo-green "Importing existing configuration..."
