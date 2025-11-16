@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+
+## Generate a new Drupal 11 custom theme
+##
+## Usage: fin theme-generate [theme-name] [machine-name] [description]
+##
+## Options:
+##   theme-name     Human-readable theme name (e.g., "My Awesome Theme")
+##   machine-name   Machine name for the theme (e.g., "my_awesome_theme")
+##   description    Theme description (e.g., "A custom theme for my site")
+
+# Exit on error
+set -e
+
+# Colors for output
+red='\033[0;31m'
+green='\033[0;32m'
+yellow='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Function to validate machine name
+validate_machine_name() {
+    local name=$1
+    if [[ ! $name =~ ^[a-z][a-z0-9_]*$ ]]; then
+        echo -e "${red}Error: Machine name must start with a lowercase letter and contain only lowercase letters, numbers, and underscores.${NC}"
+        return 1
+    fi
+    return 0
+}
+
+# Function to convert human name to machine name suggestion
+suggest_machine_name() {
+    local human_name=$1
+    echo "$human_name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g' | sed 's/__*/_/g' | sed 's/^_//;s/_$//'
+}
+
+# Get parameters or prompt for input
+THEME_NAME=${1:-}
+MACHINE_NAME=${2:-}
+DESCRIPTION=${3:-}
+
+# Prompt for theme name if not provided
+if [ -z "$THEME_NAME" ]; then
+    echo -e "${green}Enter the human-readable theme name:${NC}"
+    read -p "> " THEME_NAME
+
+    if [ -z "$THEME_NAME" ]; then
+        echo -e "${red}Error: Theme name cannot be empty.${NC}"
+        exit 1
+    fi
+fi
+
+# Prompt for machine name if not provided
+if [ -z "$MACHINE_NAME" ]; then
+    SUGGESTED=$(suggest_machine_name "$THEME_NAME")
+    echo -e "${green}Enter the machine name for the theme${NC} ${yellow}[suggested: $SUGGESTED]${NC}:"
+    read -p "> " MACHINE_NAME
+
+    # Use suggestion if user just hits enter
+    if [ -z "$MACHINE_NAME" ]; then
+        MACHINE_NAME=$SUGGESTED
+    fi
+fi
+
+# Validate machine name
+if ! validate_machine_name "$MACHINE_NAME"; then
+    exit 1
+fi
+
+# Prompt for description if not provided
+if [ -z "$DESCRIPTION" ]; then
+    echo -e "${green}Enter the theme description:${NC}"
+    read -p "> " DESCRIPTION
+
+    if [ -z "$DESCRIPTION" ]; then
+        DESCRIPTION="Custom theme for $THEME_NAME"
+    fi
+fi
+
+# Display summary
+echo ""
+echo -e "${green}=== Theme Generation Summary ===${NC}"
+echo -e "Theme Name:    ${yellow}$THEME_NAME${NC}"
+echo -e "Machine Name:  ${yellow}$MACHINE_NAME${NC}"
+echo -e "Description:   ${yellow}$DESCRIPTION${NC}"
+echo ""
+
+# Confirm generation
+read -p "Generate this theme? (y/n) " -n 1 -r
+echo ""
+
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo -e "${yellow}Theme generation cancelled.${NC}"
+    exit 0
+fi
+
+# Generate the theme
+echo -e "${green}Generating theme...${NC}"
+
+fin exec php web/core/scripts/drupal generate-theme "$MACHINE_NAME" \
+    --name="$THEME_NAME" \
+    --description="$DESCRIPTION" \
+    --path=themes/custom
+
+if [ $? -eq 0 ]; then
+    echo ""
+    echo -e "${green}✓ Theme generated successfully!${NC}"
+    echo -e "Location: ${yellow}web/themes/custom/$MACHINE_NAME${NC}"
+    echo ""
+    echo -e "Next steps:"
+    echo -e "1. Enable the theme: ${yellow}fin drush theme:enable $MACHINE_NAME${NC}"
+    echo -e "2. Set as default: ${yellow}fin drush config:set system.theme default $MACHINE_NAME -y${NC}"
+else
+    echo -e "${red}✗ Theme generation failed.${NC}"
+    exit 1
+fi
