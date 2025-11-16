@@ -43,6 +43,9 @@ For detailed instructions and supported distributions, see: https://docs.docksal
 ## Result
 - Running `fin init` produces a minimal Drupal installation.
 - Add contrib or custom modules or themes according to your project's needs (put your code under `project/`; composer scripts symlink to runtime paths).
+  - Use the `fin theme/new` command to generate a new theme using Drupal's Theme Starter Kit.
+  - Example: `fin theme/new --name="My Theme" --machine-name="my_theme" --description="A custom theme for myself."`
+  - See `.docksal/commands/theme/new` for more details, or run `fin help theme/new`.
 
 ## Defaults
 - Document root: `web/`
