@@ -2,12 +2,19 @@
 
 ## Generate a new Drupal 11 custom theme
 ##
-## Usage: fin theme-generate [theme-name] [machine-name] [description]
+## Usage: fin theme/new [OPTIONS]
 ##
 ## Options:
-##   theme-name     Human-readable theme name (e.g., "My Awesome Theme")
-##   machine-name   Machine name for the theme (e.g., "my_awesome_theme")
-##   description    Theme description (e.g., "A custom theme for my site")
+##   --name              Human-readable theme name (e.g., "My Awesome Theme")
+##   --machine-name      Machine name for the theme (e.g., "my_awesome_theme")
+##   --description       Theme description (optional)
+##   --no-interaction    Run without prompting for input (requires --name at minimum)
+##
+## Examples:
+##   fin theme/new
+##   fin theme/new --name="My Theme" --machine-name=my_theme
+##   fin theme/new --name="My Theme" --machine-name=my_theme --description="Custom theme"
+##   fin theme/new --name="My Theme" --no-interaction
 
 # Exit on error
 set -e
@@ -34,13 +41,64 @@ suggest_machine_name() {
     echo "$human_name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g' | sed 's/__*/_/g' | sed 's/^_//;s/_$//'
 }
 
-# Get parameters or prompt for input
-THEME_NAME=${1:-}
-MACHINE_NAME=${2:-}
-DESCRIPTION=${3:-}
+# Initialize variables
+THEME_NAME=""
+MACHINE_NAME=""
+DESCRIPTION=""
+NO_INTERACTION=false
+
+# Parse named parameters
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --name=*)
+            THEME_NAME="${1#*=}"
+            shift
+            ;;
+        --name)
+            THEME_NAME="$2"
+            shift 2
+            ;;
+        --machine-name=*|--machine_name=*)
+            MACHINE_NAME="${1#*=}"
+            shift
+            ;;
+        --machine-name|--machine_name)
+            MACHINE_NAME="$2"
+            shift 2
+            ;;
+        --description=*)
+            DESCRIPTION="${1#*=}"
+            shift
+            ;;
+        --description)
+            DESCRIPTION="$2"
+            shift 2
+            ;;
+        --no-interaction)
+            NO_INTERACTION=true
+            shift
+            ;;
+        *)
+            echo -e "${red}Error: Unknown parameter '$1'${NC}"
+            echo "Use 'fin help theme/new' for usage information"
+            exit 1
+            ;;
+    esac
+done
+
+# Check if --no-interaction is set and required parameters are missing
+if [ "$NO_INTERACTION" = true ] && [ -z "$THEME_NAME" ]; then
+    echo -e "${red}Error: --name is required when using --no-interaction${NC}"
+    exit 1
+fi
 
 # Prompt for theme name if not provided
 if [ -z "$THEME_NAME" ]; then
+    if [ "$NO_INTERACTION" = true ]; then
+        echo -e "${red}Error: Theme name is required${NC}"
+        exit 1
+    fi
+
     echo -e "${green}Enter the human-readable theme name:${NC}"
     read -p "> " THEME_NAME
 
@@ -53,12 +111,19 @@ fi
 # Prompt for machine name if not provided
 if [ -z "$MACHINE_NAME" ]; then
     SUGGESTED=$(suggest_machine_name "$THEME_NAME")
-    echo -e "${green}Enter the machine name for the theme${NC} ${yellow}[suggested: $SUGGESTED]${NC}:"
-    read -p "> " MACHINE_NAME
 
-    # Use suggestion if user just hits enter
-    if [ -z "$MACHINE_NAME" ]; then
+    if [ "$NO_INTERACTION" = true ]; then
         MACHINE_NAME=$SUGGESTED
+        echo -e "${yellow}Auto-generated machine name: $MACHINE_NAME${NC}"
+    else
+        echo -e "${green}Enter the machine name for the theme${NC} ${yellow}[press Enter to use: $SUGGESTED]${NC}:"
+        read -p "> " MACHINE_NAME
+
+        # Use suggestion if user just hits enter
+        if [ -z "$MACHINE_NAME" ]; then
+            MACHINE_NAME=$SUGGESTED
+            echo -e "${yellow}Using suggested machine name: $MACHINE_NAME${NC}"
+        fi
     fi
 fi
 
@@ -67,14 +132,10 @@ if ! validate_machine_name "$MACHINE_NAME"; then
     exit 1
 fi
 
-# Prompt for description if not provided
-if [ -z "$DESCRIPTION" ]; then
-    echo -e "${green}Enter the theme description:${NC}"
+# Prompt for description if not provided (optional)
+if [ -z "$DESCRIPTION" ] && [ "$NO_INTERACTION" = false ]; then
+    echo -e "${green}Enter the theme description (optional, press Enter to skip):${NC}"
     read -p "> " DESCRIPTION
-
-    if [ -z "$DESCRIPTION" ]; then
-        DESCRIPTION="Custom theme for $THEME_NAME"
-    fi
 fi
 
 # Display summary
@@ -85,22 +146,31 @@ echo -e "Machine Name:  ${yellow}$MACHINE_NAME${NC}"
 echo -e "Description:   ${yellow}$DESCRIPTION${NC}"
 echo ""
 
-# Confirm generation
-read -p "Generate this theme? (y/n) " -n 1 -r
-echo ""
+# Confirm generation (skip if --no-interaction)
+if [ "$NO_INTERACTION" = false ]; then
+    read -p "Generate this theme? (y/n) " -n 1 -r
+    echo ""
 
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${yellow}Theme generation cancelled.${NC}"
-    exit 0
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${yellow}Theme generation cancelled.${NC}"
+        exit 0
+    fi
 fi
 
 # Generate the theme
 echo -e "${green}Generating theme...${NC}"
 
-fin exec php web/core/scripts/drupal generate-theme "$MACHINE_NAME" \
-    --name="$THEME_NAME" \
-    --description="$DESCRIPTION" \
-    --path=themes/custom
+# Build the command with optional description
+if [ -n "$DESCRIPTION" ]; then
+    fin exec php web/core/scripts/drupal generate-theme "$MACHINE_NAME" \
+        --name="$THEME_NAME" \
+        --description="$DESCRIPTION" \
+        --path=themes/custom
+else
+    fin exec php web/core/scripts/drupal generate-theme "$MACHINE_NAME" \
+        --name="$THEME_NAME" \
+        --path=themes/custom
+fi
 
 if [ $? -eq 0 ]; then
     echo ""
