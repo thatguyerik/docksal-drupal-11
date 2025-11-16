@@ -79,11 +79,36 @@ site_install ()
 {
   cd "$DOCROOT_PATH"
 
+  local db_file="${PROJECT_ROOT}/latest.sql.gz"
+
+  # Check if database dump exists
+  if [[ -f "$db_file" ]]; then
+    echo-green "Found existing database dump at ${db_file}"
+    echo-green "Importing database..."
+
+    # Import the database using drush sql:cli
+    zcat < "$db_file" | $(drush sql:connect)
+
+    echo-green "Database import complete."
+
+    # Run standard deployment steps
+    echo-green "Running database updates..."
+    drush updb -y
+
+    echo-green "Importing configuration..."
+    drush config:import -y
+
+    echo-green "Clearing caches..."
+    drush cr
+
+    return
+  fi
+
   # Helper to detect if Drupal is already installed (bootstrap successful)
   if drush status --field=bootstrap 2>/dev/null | grep -qi "Successful"; then
     echo-green "Drupal detected. Skipping site installation..."
   else
-    echo-green "No Drupal installation detected. Running site install..."
+    echo-green "No database dump or Drupal installation detected. Running site install..."
     drush site-install minimal --existing-config --account-name=admin --account-pass=admin -y
     echo-green "Drupal installation complete..."
     return
