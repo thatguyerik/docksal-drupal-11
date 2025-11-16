@@ -164,4 +164,5 @@ $settings['redis.connection']['port'] = '6379';
 
 $settings['cache']['default'] = 'cache.backend.redis';
 $settings['container_yamls'][] = 'modules/contrib/redis/example.services.yml';
+$settings['container_yamls'][] = 'modules/contrib/redis/redis.services.yml';
 $settings['cache_prefix'] = 'drupal_';
