@@ -5,3 +5,8 @@ services:
     build: services/cli
     environment:
       - AI_ASSISTANT=${AI_ASSISTANT}
+
+  redis:
+    extends:
+      file: ${HOME}/.docksal/stacks/services.yml
+      service: redis

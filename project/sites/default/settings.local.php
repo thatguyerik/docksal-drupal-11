@@ -154,3 +154,14 @@ $settings['skip_permissions_hardening'] = TRUE;
  * the language or field module.
  */
 # $settings['config_exclude_modules'] = ['devel', 'stage_file_proxy'];
+
+/**
+ * Redis configuration
+ */
+$settings['redis.connection']['interface'] = 'PhpRedis';
+$settings['redis.connection']['host'] = 'redis';
+$settings['redis.connection']['port'] = '6379';
+
+$settings['cache']['default'] = 'cache.backend.redis';
+$settings['container_yamls'][] = 'modules/contrib/redis/example.services.yml';
+$settings['cache_prefix'] = 'drupal_';
