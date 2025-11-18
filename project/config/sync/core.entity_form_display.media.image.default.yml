@@ -1,3 +1,4 @@
+uuid: 51a2b4db-59b2-4710-8f2d-1abcd9a71728
 langcode: en
 status: true
 dependencies:
@@ -25,6 +26,12 @@ content:
     settings:
       progress_indicator: throbber
       preview_image_style: thumbnail
+    third_party_settings: {  }
+  path:
+    type: path
+    weight: 30
+    region: content
+    settings: {  }
     third_party_settings: {  }
   status:
     type: boolean_checkbox

@@ -1,9 +1,10 @@
+uuid: 1787bddf-8d71-4c9a-9a72-61a51ae05f0d
 langcode: en
 status: true
 dependencies: {  }
 id: document
 label: Document
-description: "An uploaded file or document, such as a PDF."
+description: 'An uploaded file or document, such as a PDF.'
 source: file
 queue_thumbnail_downloads: false
 new_revision: true
